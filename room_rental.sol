@@ -36,7 +36,7 @@ contract rentalRoom {
         emit roomOccupied(stateRoom);
     }
 
-    function setRoomToFree () external
+    function setRoomToFree () external onlyOwner
     {
         stateRoom = states[0];
     }
