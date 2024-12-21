@@ -19,7 +19,6 @@ contract hotelRoom {
     string[2] states = ["free", "occupied"];
     Room [] rooms;
     mapping (string => uint) indexRoom;
-    // string [5] rooms = ["Single room", "Double room", "Triple room", "Connecting room", "Suite"];
 
     //constructor
     constructor(){
