@@ -1,44 +1,80 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.7.0 <0.9.0;
 
-contract rentalRoom {
+contract hotelRoom {
+    //Struct
+    struct Room {
+        string name;
+        string state;
+    }
+
     //events
     event roomOccupied (string stateRoom);
+    event roomFreed(string roomName);
 
     //variables
     address payable private owner;
-    string stateRoom;
     uint price = 1 ether;
 
     string[2] states = ["free", "occupied"];
+    Room [] rooms;
+    mapping (string => uint) indexRoom;
+    // string [5] rooms = ["Single room", "Double room", "Triple room", "Connecting room", "Suite"];
 
     //constructor
     constructor(){
         owner = payable(msg.sender);
-        stateRoom = states[0];
+        rooms.push(Room ("single room", states[0]));
+        indexRoom["Single room"] = 0;
+
+        rooms.push(Room ("double room", states[0]));
+        indexRoom["Double room"] = 1;
+
+        rooms.push(Room ("triple room", states[0]));
+        indexRoom["triple room"] = 2;
+
+        rooms.push(Room ("connecting room", states[0]));
+        indexRoom["connecting room"] = 3;
+
+        rooms.push(Room ("suite", states[0]));
+        indexRoom["suite room"] = 4;
     }
 
     //Functions
+    function Rooms () external view returns (Room [] memory) 
+    {
+        return rooms;
+    }
+
     function compareStrings (string memory a, string memory b) internal pure returns (bool)
     {
         return (keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b)));
     }
 
-    function occupyAndPayRoom() external payable 
+    function getARoom (string memory _roomName) external payable 
     {
-        require(compareStrings(stateRoom, states[0]), "The room is occuppied");
+        uint i= indexRoom[_roomName];
+        
         require(msg.value >= price, "Insufficient funds");
+        require(compareStrings(_roomName, rooms[i].name), "The name doesn't exist.");
+        require(compareStrings(rooms[i].state, states[0]), "Room is already occupied.");
+
+        rooms[i].state = states[1];
 
         owner.transfer(msg.value);
 
-        stateRoom = states[1];
-
-        emit roomOccupied(stateRoom);
+        emit roomOccupied(rooms[i].state);
     }
 
-    function setRoomToFree () external onlyOwner
+    function setRoomToFree (string memory _roomName) external onlyOwner
     {
-        stateRoom = states[0];
+        uint i = indexRoom[_roomName];
+
+        require(compareStrings(_roomName,rooms[i].name), "The name doesn't exist.");
+        
+        rooms[i].state = states[0];
+
+        emit roomFreed(_roomName);
     }
 
     //modifier
